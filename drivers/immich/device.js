@@ -43,7 +43,9 @@ class ImmichDevice extends Homey.Device {
     try {
       await Promise.all([
         this._checkNewAssets(),
-        this._checkMemories(),
+        // A failing memories call must not take the device offline; real
+        // connectivity problems still surface through _checkNewAssets.
+        this._checkMemories().catch((err) => this.error('Memory check failed:', err.message)),
         this._checkServerStats(),
       ]);
       this._lastPolledAt = pollStart;
